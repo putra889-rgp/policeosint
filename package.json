@@ -1,9 +1,10 @@
 {
   "name": "policeosint",
   "version": "1.0.0",
+  "description": "API Police Data Lookup",
   "main": "api/index.js",
   "scripts": {
-    "dev": "vercel dev"
+    "start": "node api/index.js"
   },
-  "type": "module"
+  "dependencies": {}
 }
