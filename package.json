@@ -1,13 +1,14 @@
 {
   "name": "policeosint",
   "version": "1.0.0",
-  "description": "API pencarian data polisi Indonesia berdasarkan nama",
+  "description": "API pencarian data polisi dari file JSON (konversi CSV besar).",
+  "type": "module",
   "main": "api/index.js",
   "scripts": {
-    "start": "node api/index.js"
+    "start": "vercel dev",
+    "dev": "vercel dev"
   },
   "dependencies": {
-    "csv-parser": "^3.0.0",
     "express": "^4.19.2"
   }
 }
