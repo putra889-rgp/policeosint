@@ -1,30 +1,38 @@
+// api/index.js
 import fs from 'fs'
 import path from 'path'
-
-let cacheData = null
 
 export default function handler(req, res) {
   const filePath = path.join(process.cwd(), 'police-data.json')
 
-  // Load hanya sekali
-  if (!cacheData) {
-    const fileContent = fs.readFileSync(filePath, 'utf-8')
-    cacheData = JSON.parse(fileContent)
+  // Cek apakah file JSON tersedia
+  if (!fs.existsSync(filePath)) {
+    return res.status(500).json({ error: 'File police-data.json tidak ditemukan' })
+  }
+
+  // Baca data JSON (gunakan cache sederhana supaya tidak berat)
+  const jsonData = fs.readFileSync(filePath, 'utf-8')
+  let data = []
+  try {
+    data = JSON.parse(jsonData)
+  } catch (err) {
+    return res.status(500).json({ error: 'Format JSON tidak valid' })
   }
 
   const { name } = req.query
 
   if (!name) {
     return res.status(200).json({
-      message: '👮 Police OSINT JSON API aktif',
-      total_records: cacheData.length,
+      message: '👮 Police OSINT API aktif',
+      total_records: data.length,
       usage: '/api?name=Nama Polisi'
     })
   }
 
+  // Pencarian tidak case-sensitive dan support spasi
   const keyword = name.toLowerCase().trim()
-  const results = cacheData.filter(p =>
-    p.NAMA && p.NAMA.toLowerCase().includes(keyword)
+  const results = data.filter(entry =>
+    entry.NAMA && entry.NAMA.toLowerCase().includes(keyword)
   )
 
   return res.status(200).json({
@@ -32,4 +40,4 @@ export default function handler(req, res) {
     total_found: results.length,
     results
   })
-}
+                              }
