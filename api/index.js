@@ -1,42 +1,35 @@
-import express from "express";
-import fs from "fs";
+import fs from 'fs'
+import path from 'path'
 
-const app = express();
+let cacheData = null
 
-// Load JSON ke memori saat server start
-let policeData = [];
-try {
-  const raw = fs.readFileSync("police-data.json", "utf8");
-  policeData = JSON.parse(raw);
-  console.log(`✅ Loaded ${policeData.length} police records.`);
-} catch (err) {
-  console.error("❌ Gagal load police-data.json:", err);
-}
+export default function handler(req, res) {
+  const filePath = path.join(process.cwd(), 'police-data.json')
 
-// Endpoint root untuk test
-app.get("/", (req, res) => {
-  res.json({
-    message: "👮 Police OSINT API aktif",
-    total_records: policeData.length,
-    usage: "/search?name=Nama Polisi",
-  });
-});
-
-// Endpoint pencarian data polisi
-app.get("/search", (req, res) => {
-  const q = (req.query.name || "").toLowerCase().trim();
-  if (!q) {
-    return res.status(400).json({ error: "Parameter ?name= wajib diisi" });
+  // Load hanya sekali
+  if (!cacheData) {
+    const fileContent = fs.readFileSync(filePath, 'utf-8')
+    cacheData = JSON.parse(fileContent)
   }
 
-  const results = policeData.filter(
-    (p) => p.NAMA && p.NAMA.toLowerCase().includes(q)
-  );
+  const { name } = req.query
 
-  res.json({
-    total: results.length,
-    results,
-  });
-});
+  if (!name) {
+    return res.status(200).json({
+      message: '👮 Police OSINT JSON API aktif',
+      total_records: cacheData.length,
+      usage: '/api?name=Nama Polisi'
+    })
+  }
 
-export default app;
+  const keyword = name.toLowerCase().trim()
+  const results = cacheData.filter(p =>
+    p.NAMA && p.NAMA.toLowerCase().includes(keyword)
+  )
+
+  return res.status(200).json({
+    query: name,
+    total_found: results.length,
+    results
+  })
+}
