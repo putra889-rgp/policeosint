@@ -1,23 +1,26 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const { nama } = req.query;
 
+  // Baca JSON
+  const filePath = path.join(__dirname, '../police-data.json');
+  const rawData = fs.readFileSync(filePath);
+  const policeData = JSON.parse(rawData);
+
   if (!nama) {
-    return res.status(400).json({ error: "Query 'nama' dibutuhkan" });
+    return res.status(400).json({ error: 'Masukkan query ?nama=...' });
   }
 
-  const filePath = path.resolve('./police-data.json');
-  const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-  const hasil = data.filter(p =>
-    p.NAMA.toLowerCase().includes(nama.toLowerCase())
+  // Cari nama (case-insensitive)
+  const filtered = policeData.filter(item =>
+    item.NAMA.toLowerCase().includes(nama.toLowerCase())
   );
 
-  res.status(200).json({
-    total: data.length,
-    count: hasil.length,
-    data: hasil
+  res.json({
+    total: policeData.length,
+    count: filtered.length,
+    data: filtered
   });
-}
+};
