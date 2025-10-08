@@ -1,4 +1,5 @@
-import data from '../police-data.json';
+import fs from 'fs';
+import path from 'path';
 
 export default function handler(req, res) {
   const { nama } = req.query;
@@ -7,15 +8,16 @@ export default function handler(req, res) {
     return res.status(400).json({ error: "Query 'nama' dibutuhkan" });
   }
 
-  const keyword = nama.trim().toLowerCase();
+  const filePath = path.resolve('./police-data.json');
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
-  const results = data.filter(item =>
-    item.NAMA.trim().toLowerCase().includes(keyword)
+  const hasil = data.filter(p =>
+    p.NAMA.toLowerCase().includes(nama.toLowerCase())
   );
 
   res.status(200).json({
-    total: results.length,
-    count: results.length,
-    data: results
+    total: data.length,
+    count: hasil.length,
+    data: hasil
   });
 }
