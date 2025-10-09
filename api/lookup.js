@@ -1,12 +1,13 @@
 import siakData from '../siak_clean_sample_1k.json';
 
 export default function handler(req, res) {
-  const nik = req.query.nik;
+  const nik = (req.query.nik || '').trim();
 
   if (!nik) {
     return res.status(400).json({ error: 'NIK is required' });
   }
 
+  // Cari data dengan kecocokan string 16 digit
   const result = siakData.find(item => item.nik === nik);
 
   if (result) {
