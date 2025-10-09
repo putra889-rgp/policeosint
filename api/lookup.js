@@ -1,7 +1,7 @@
-const siakData = require('../siak_clean_sample_1k.json');
+import siakData from '../siak_clean_sample_1k.json';
 
-export default function handler(req, res) {
-  const { nik } = req.query;
+export default async function handler(req, res) {
+  const nik = req.query.nik;
   if (!nik) {
     return res.status(400).json({ error: 'NIK is required' });
   }
